@@ -1,0 +1,4 @@
+{
+	"vertex": "color.vs",
+	"fragment": "color.fs"
+}

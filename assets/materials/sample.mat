@@ -1,0 +1,8 @@
+{
+	"diffuse": "defaultDiff.png",
+	"specular": "defaultSpec.png",
+	"emissive": "defaultEmis.png",
+	"normal": "defaultNorm.png",
+	"roughness": 32.0,
+	"shader": "defaultShader.shd"
+}
