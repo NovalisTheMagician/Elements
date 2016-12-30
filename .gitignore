@@ -1,2 +1,5 @@
 bin/
 *.class
+Thumbs.db
+assets/meshes/
+assets/textures/
