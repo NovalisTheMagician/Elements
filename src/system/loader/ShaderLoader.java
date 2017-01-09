@@ -2,6 +2,7 @@ package system.loader;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,7 +18,7 @@ import system.renderer.shader.Shader;
 import system.renderer.shader.ShaderCompileException;
 import system.renderer.shader.Shader.ShaderType;
 
-public class ShaderLoader implements Loader<Program>
+public class ShaderLoader implements Loader<Program>, FileFilter
 {
 	private class ShaderFile
 	{
@@ -27,7 +28,7 @@ public class ShaderLoader implements Loader<Program>
 	
 	@Override
 	public Program load(InputStream in, String workingDir) 
-	{
+	{	
 		Gson gson = new Gson();
 		ShaderFile shdFile = gson.fromJson(readTextFile(in), ShaderFile.class);
 		Program p = loadProgram(workingDir + shdFile.vertex, workingDir + shdFile.fragment);
@@ -116,4 +117,8 @@ public class ShaderLoader implements Loader<Program>
 		return program;
 	}
 
+	public boolean accept(File file) 
+	{ 
+		return file.isFile() && file.getName().toLowerCase().endsWith(".shd"); 
+	}
 }

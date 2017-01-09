@@ -1,6 +1,11 @@
 package game;
 
+import system.Config;
 import system.GameBase;
+import system.loader.AssetManager;
+import static system.loader.AssetManager.AssetType.*;
+import system.loader.ShaderLoader;
+import system.loader.TextureLoader;
 import system.renderer.Mesh;
 import system.renderer.MeshBuilder;
 import system.renderer.Sampler;
@@ -8,24 +13,9 @@ import system.renderer.Sampler.FilterModes;
 import system.renderer.Sampler.WrapModes;
 import system.renderer.Texture;
 import system.renderer.shader.Program;
-import system.renderer.shader.ProgramLinkException;
-import system.renderer.shader.Shader;
-import system.renderer.shader.ShaderCompileException;
 import system.renderer.shader.Uniform;
-import system.renderer.shader.Shader.ShaderType;
 
 import static org.lwjgl.opengl.GL11.*;
-
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-
-import javax.imageio.ImageIO;
 
 import org.lwjgl.input.Keyboard;
 
@@ -54,6 +44,9 @@ public class Game extends GameBase
 	Program staticBlinnPhong;
 	Mesh cube;
 	
+	AssetManager assetManager;
+	Config config;
+	
 	@Override
 	protected void init() 
 	{
@@ -62,7 +55,20 @@ public class Game extends GameBase
 		
 		glClearColor(0, 0, 0, 1);
 		
-		staticBlinnPhong = loadProgram("assets/shader/color.vs", "assets/shader/color.fs");
+		config = new Config();
+		
+		assetManager = new AssetManager(config);
+		TextureLoader texLoader = new TextureLoader();
+		assetManager.registerLoader(TEXTURE, texLoader, config.getTextureFolder(), texLoader);
+		ShaderLoader shdLoader = new ShaderLoader();
+		assetManager.registerLoader(SHADER, shdLoader, config.getShaderFolder(), shdLoader);
+		
+		assetManager.loadAssets();
+		
+		diffMap = assetManager.get(TEXTURE, "container2.png");
+		specMap = assetManager.get(TEXTURE, "container2_specular.png");
+		
+		staticBlinnPhong = assetManager.get(SHADER, "color.static.shd");
 		
 		worldUni = staticBlinnPhong.getUniformMatrix4("world");
 		viewUni = staticBlinnPhong.getUniformMatrix4("view");
@@ -78,9 +84,6 @@ public class Game extends GameBase
 		diffMapUni = staticBlinnPhong.getUniformInteger("material.diffuseMap");
 		specMapUni = staticBlinnPhong.getUniformInteger("material.specularMap");
 		roughnessUni = staticBlinnPhong.getUniformFloat("material.roughness");
-		
-		diffMap = loadTexture("assets/textures/container2.png");
-		specMap = loadTexture("assets/textures/container2_specular.png");
 		
 		sampler = new Sampler();
 		sampler.setWrapMode(WrapModes.REPEAT, WrapModes.REPEAT);
@@ -194,128 +197,6 @@ public class Game extends GameBase
 		diffMap.destroy();
 		specMap.destroy();
 		sampler.destroy();
-	}
-	
-	public String readTextFile(String filename)
-	{
-		StringBuilder source = new StringBuilder();
-	     
-	    try(BufferedReader reader = new BufferedReader(new FileReader(filename));)
-	    {
-	        String line;
-	        while ((line = reader.readLine()) != null) 
-	        {
-	            source.append(line).append("\n");
-	        }
-	        reader.close();
-	    } 
-	    catch (IOException e) 
-	    {
-	        System.err.println("Could not read file: " + filename);
-	        e.printStackTrace();
-	        return "";
-	    }
-	    
-	    return source.toString();
-	}
-	
-	public Texture loadTexture(String filename)
-	{
-		ByteBuffer texels = null;
-		int width = 0;
-		int height = 0;
-		
-		try 
-		{
-			BufferedImage img = ImageIO.read(new File(filename));
-			width = img.getWidth();
-			height = img.getHeight();
-			int size = width * height;
-			if(img.getType() != BufferedImage.TYPE_INT_ARGB)
-			{
-				BufferedImage newFormat = new BufferedImage(img.getWidth(), img.getHeight(), 
-															BufferedImage.TYPE_INT_ARGB);
-				Graphics2D g = newFormat.createGraphics();
-				g.drawImage(img, 0, 0, null);
-				g.dispose();
-				img = newFormat;
-			}
-			
-			int byteSize = size * 4;
-			texels = ByteBuffer.allocateDirect(byteSize).order(ByteOrder.nativeOrder());
-			for(int y = 0; y < img.getHeight(); ++y)
-			{
-				for(int x = 0; x < img.getWidth(); ++x)
-				{
-					int texel = img.getRGB(x, y);
-					byte a = (byte)((texel >> 24) & 255);
-					byte r = (byte)((texel >> 16) & 255);
-					byte g = (byte)((texel >> 8) & 255);
-					byte b = (byte)(texel & 255);
-					
-					texels.put(r);
-					texels.put(g);
-					texels.put(b);
-					texels.put(a);
-				}
-			}
-			
-			texels.flip();
-		} 
-		catch (IOException e) 
-		{
-			System.err.println("Could not read texture file.");
-			e.printStackTrace();
-			return null;
-		}
-		
-		Texture texture = new Texture();
-		
-		texture.setData(texels, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, width, height);
-		
-		return texture;
-	}
-	
-	public Program loadProgram(String vertexSourcePath, String fragmentSourcePath)
-	{
-		String vertexSource = readTextFile(vertexSourcePath);
-		String fragmentSource = readTextFile(fragmentSourcePath);
-		
-		Shader vertexShader = new Shader();
-		Shader fragmentShader = new Shader();
-		
-		vertexShader.setShaderSource(vertexSource, ShaderType.VERTEX);
-		fragmentShader.setShaderSource(fragmentSource, ShaderType.FRAGMENT);
-		
-		try
-		{
-			vertexShader.compile();
-			fragmentShader.compile();
-		}
-		catch(ShaderCompileException e)
-		{
-			e.printStackTrace();
-			System.err.println(vertexShader.getErrorMessage());
-			System.err.println(fragmentShader.getErrorMessage());
-		}
-		
-		Program program = new Program();
-		try
-		{
-			program.attachShader(vertexShader);
-			program.attachShader(fragmentShader);
-			program.link();
-		}
-		catch(ProgramLinkException e)
-		{
-			e.printStackTrace();
-			System.err.println(program.getErrorMessage());
-		}
-		
-		vertexShader.destroy();
-		fragmentShader.destroy();
-		
-		return program;
 	}
 	
 	public static void main(String... argv)

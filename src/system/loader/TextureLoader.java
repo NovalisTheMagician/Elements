@@ -6,6 +6,8 @@ import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
@@ -15,7 +17,7 @@ import javax.imageio.ImageIO;
 
 import system.renderer.Texture;
 
-public class TextureLoader implements Loader<Texture> 
+public class TextureLoader implements Loader<Texture>, FileFilter
 {
 	@Override
 	public Texture load(InputStream in, String workingDir) 
@@ -72,5 +74,10 @@ public class TextureLoader implements Loader<Texture>
 		texture.setData(texels, GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE, width, height);
 		
 		return texture;
+	}
+	
+	public boolean accept(File file) 
+	{ 
+		return file.isFile() && file.getName().toLowerCase().endsWith(".png"); 
 	}
 }

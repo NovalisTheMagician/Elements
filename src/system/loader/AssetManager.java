@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import system.Config;
 import system.renderer.Mesh;
@@ -61,29 +62,13 @@ public class AssetManager
 		assets.put(AssetType.MESH, new HashMap<>());
 		assets.put(AssetType.SHADER, new HashMap<>());
 		// TODO add more AssetType maps
-		
-		buildTables();
 	}
 	
-	private void buildTables()
-	{
-		assetPath.put(config.getTextureFolder(), AssetType.TEXTURE);
-		assetPath.put(config.getMeshFolder(), AssetType.MESH);
-		assetPath.put(config.getShaderFolder(), AssetType.SHADER);
-		// TODO add remaining assets
-		
-		assetFileFilter.put(AssetType.TEXTURE, new FileFilter() 
-			{ public boolean accept(File file) { return file.isFile() && checkExt(file, ".png"); } });
-		assetFileFilter.put(AssetType.MESH, new FileFilter() 
-			{ public boolean accept(File file) { return file.isFile() && checkExt(file, ".msh"); } });
-		assetFileFilter.put(AssetType.SHADER, new FileFilter() 
-			{ public boolean accept(File file) { return file.isFile() && checkExt(file, ".shd"); } });
-		// TODO add remaining assets
-	}
-	
-	public void registerLoader(AssetType<?> type, Loader<?> loader)
+	public void registerLoader(AssetType<?> type, Loader<?> loader, String assetFolder, FileFilter assetFilter)
 	{
 		loaders.put(type, loader);
+		assetPath.put(assetFolder, type);
+		assetFileFilter.put(type, assetFilter);
 	}
 	
 	public void loadAssets()
@@ -93,7 +78,9 @@ public class AssetManager
 		
 		for(File assetFolder : folders)
 		{
-			AssetType<?> type = assetPath.get(assetFolder.getName());
+			System.out.println("Current folder: " + assetFolder.getName());
+			
+			AssetType<?> type = assetPath.get(assetFolder.getName() + "/");
 			if(type == null) continue;
 			
 			Loader<?> loader = loaders.get(type);
@@ -104,7 +91,7 @@ public class AssetManager
 			{
 				try (InputStream stream = Files.newInputStream(assetFile.toPath(), StandardOpenOption.READ))
 				{
-					put(type, assetFile.getName(), loader.load(stream, assetFolder.getPath()));
+					put(type, assetFile.getName(), loader.load(stream, assetFolder.getPath() + "/"));
 				} 
 				catch (IOException e) 
 				{
@@ -117,11 +104,6 @@ public class AssetManager
 	private boolean acceptAssetFolder(File folder)
 	{
 		return folder.isDirectory();
-	}
-	
-	private boolean checkExt(File file, String extension)
-	{
-		return file.getName().toLowerCase().endsWith(extension);
 	}
 	
 	private void put(AssetType<?> type, String identifier, Object asset)
@@ -140,5 +122,14 @@ public class AssetManager
 			throw new AssetNotFoundException("Could not cast to type " + type.toString());
 		
 		return castedAsset;
+	}
+	
+	public void printAllAssetsOfType(AssetType<?> type)
+	{
+		Set<String> keys = assets.get(type).keySet();
+		for(String name : keys)
+		{
+			System.out.println(name);
+		}
 	}
 }
