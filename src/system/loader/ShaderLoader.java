@@ -26,7 +26,7 @@ public class ShaderLoader implements Loader<Program>
 	}
 	
 	@Override
-	public Program Load(InputStream in, String workingDir) 
+	public Program load(InputStream in, String workingDir) 
 	{
 		Gson gson = new Gson();
 		ShaderFile shdFile = gson.fromJson(readTextFile(in), ShaderFile.class);

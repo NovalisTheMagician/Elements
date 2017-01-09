@@ -4,5 +4,5 @@ import java.io.InputStream;
 
 public interface Loader<AssetType> 
 {
-	AssetType Load(InputStream in, String workingDir);
+	AssetType load(InputStream in, String workingDir);
 }

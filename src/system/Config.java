@@ -43,9 +43,19 @@ public class Config
 		return ASSETS_ROOT_PATH + MESH_SUB_PATH;
 	}
 	
+	public String getMeshFolder()
+	{
+		return MESH_SUB_PATH;
+	}
+	
 	public String getTexturePath()
 	{
 		return ASSETS_ROOT_PATH + TEXTURE_SUB_PATH;
+	}
+	
+	public String getTextureFolder()
+	{
+		return TEXTURE_SUB_PATH;
 	}
 	
 	public String getShaderPath()
@@ -53,9 +63,19 @@ public class Config
 		return ASSETS_ROOT_PATH + SHADER_SUB_PATH;
 	}
 	
+	public String getShaderFolder()
+	{
+		return SHADER_SUB_PATH;
+	}
+	
 	public String getMaterialPath()
 	{
 		return ASSETS_ROOT_PATH + MATERIAL_SUB_PATH;
+	}
+	
+	public String getMaterialFolder()
+	{
+		return MATERIAL_SUB_PATH;
 	}
 	
 	public String getScriptPath()
@@ -63,9 +83,19 @@ public class Config
 		return ASSETS_ROOT_PATH + SCRIPT_SUB_PATH;
 	}
 	
+	public String getScriptFolder()
+	{
+		return SCRIPT_SUB_PATH;
+	}
+	
 	public String getSoundPath()
 	{
 		return ASSETS_ROOT_PATH + SOUND_SUB_PATH;
+	}
+	
+	public String getSoundFolder()
+	{
+		return SOUND_SUB_PATH;
 	}
 	
 	public String getMusicPath()
@@ -73,13 +103,28 @@ public class Config
 		return ASSETS_ROOT_PATH + MUSIC_SUB_PATH;
 	}
 	
+	public String getMusicFolder()
+	{
+		return MUSIC_SUB_PATH;
+	}
+	
 	public String getEntityPath()
 	{
 		return ASSETS_ROOT_PATH + ENTITY_SUB_PATH;
 	}
 	
+	public String getEntityFolder()
+	{
+		return ENTITY_SUB_PATH;
+	}
+	
 	public String getWorldPath()
 	{
 		return ASSETS_ROOT_PATH + WORLD_SUB_PATH;
+	}
+	
+	public String getWorldFolder()
+	{
+		return WORLD_SUB_PATH;
 	}
 }

@@ -18,7 +18,7 @@ import system.renderer.Texture;
 public class TextureLoader implements Loader<Texture> 
 {
 	@Override
-	public Texture Load(InputStream in, String workingDir) 
+	public Texture load(InputStream in, String workingDir) 
 	{
 		ByteBuffer texels = null;
 		int width = 0;

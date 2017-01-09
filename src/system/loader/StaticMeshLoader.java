@@ -7,7 +7,7 @@ import system.renderer.Mesh;
 public class StaticMeshLoader implements Loader<Mesh>
 {
 	@Override
-	public Mesh Load(InputStream in, String workingDir) 
+	public Mesh load(InputStream in, String workingDir) 
 	{
 		return null;
 	}
