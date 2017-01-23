@@ -61,24 +61,24 @@ public class Sampler
 		samplerId = glGenSamplers();
 	}
 	
-	public void setParameter(int parameter, int value)
+	void setParameter(int parameter, int value)
 	{
 		glSamplerParameteri(samplerId, parameter, value);
 	}
 	
-	public void setParameter(int parameter, float value)
+	void setParameter(int parameter, float value)
 	{
 		glSamplerParameterf(samplerId, parameter, value);
 	}
 	
-	public void setParameter(int parameter, int[] values)
+	void setParameter(int parameter, int[] values)
 	{
 		IntBuffer buf = ByteBuffer.allocateDirect(values.length * 4).order(ByteOrder.nativeOrder()).asIntBuffer();
 		buf.put(values); buf.flip();
 		glSamplerParameter(samplerId, parameter, buf);
 	}
 	
-	public void setParameter(int parameter, float[] values)
+	void setParameter(int parameter, float[] values)
 	{
 		FloatBuffer buf = ByteBuffer.allocateDirect(values.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		buf.put(values); buf.flip();

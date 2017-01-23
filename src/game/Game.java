@@ -57,7 +57,7 @@ public class Game extends GameBase
 		
 		config = new Config();
 		
-		assetManager = new AssetManager(config);
+		assetManager = new AssetManager(config.getRootPath());
 		TextureLoader texLoader = new TextureLoader();
 		assetManager.registerLoader(TEXTURE, texLoader, config.getTextureFolder(), texLoader);
 		ShaderLoader shdLoader = new ShaderLoader();
@@ -65,10 +65,10 @@ public class Game extends GameBase
 		
 		assetManager.loadAssets();
 		
-		diffMap = assetManager.get(TEXTURE, "container2.png");
-		specMap = assetManager.get(TEXTURE, "container2_specular.png");
+		diffMap = assetManager.get(TEXTURE, "container2");
+		specMap = assetManager.get(TEXTURE, "container2_specular");
 		
-		staticBlinnPhong = assetManager.get(SHADER, "color.static.shd");
+		staticBlinnPhong = assetManager.get(SHADER, "color.static");
 		
 		worldUni = staticBlinnPhong.getUniformMatrix4("world");
 		viewUni = staticBlinnPhong.getUniformMatrix4("view");

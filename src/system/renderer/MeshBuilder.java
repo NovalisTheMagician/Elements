@@ -95,59 +95,8 @@ public class MeshBuilder
 		indices.flip();
 		
 		Mesh mesh = new Mesh();
-		mesh.setVertices(vertices, 24);
+		mesh.setVertices(vertices, 24, VertexFormat.Common.VertexNormalTexture);
 		mesh.setIndices(indices, i.length);
-		
-		return mesh;
-	}
-	
-	public static Mesh createCircle(float radiusX, float radiusY)
-	{
-		int numVertices = 17;
-		float theta = 0;
-		float step = ((float)Math.PI * 2) / (numVertices - 1);
-		
-		OGLInterOp vertices[] = new OGLInterOp[numVertices * 3];
-		vertices[0] = new Vector3(0); vertices[1] = new Vector3(0, 0, 1); vertices[2] = new Vector2(0.5f, 0.5f);
-		for(int i = 1; i < numVertices; ++i)
-		{
-			float x = (float)Math.cos(theta) * radiusX;
-			float y = (float)Math.sin(theta) * radiusY;
-			
-			float u = (float)Math.cos(theta) * 0.5f + 0.5f;
-			float v = (float)Math.sin(theta) * 0.5f + 0.5f;
-			
-			int index = i * 3;
-			vertices[index + 0] = new Vector3(x, y, 0);
-			vertices[index + 1] = new Vector3(0, 0, 1);
-			vertices[index + 2] = new Vector2(u, v);
-			
-			theta += step;
-		}
-		
-		short indices[] = new short[numVertices * 3];
-		int j = 0;
-		for(int i = 1; i < indices.length; i++)
-		{
-			indices[j++] = 0;
-			indices[j++] = (short)i;
-			indices[j++] = (short)(i+1);
-		}
-		
-		FloatBuffer vertBuf = ByteBuffer.allocateDirect(32 * numVertices).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		ShortBuffer indBuf = ByteBuffer.allocateDirect(2 * indices.length).order(ByteOrder.nativeOrder()).asShortBuffer();
-		
-		for(OGLInterOp vert : vertices)
-			vert.putBuffer(vertBuf);
-		vertBuf.flip();
-		
-		for(short ind : indices)
-			indBuf.put(ind);
-		indBuf.flip();
-		
-		Mesh mesh = new Mesh();
-		mesh.setVertices(vertBuf, numVertices); // TODO dragons
-		mesh.setIndices(indBuf, indices.length);
 		
 		return mesh;
 	}

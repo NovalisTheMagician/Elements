@@ -3,9 +3,6 @@ package system.renderer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
-import math.Vector2;
-import math.Vector3;
-
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -21,7 +18,7 @@ public class Mesh
 		vao = glGenVertexArrays();
 	}
 	
-	public void setVertices(FloatBuffer vertices, int count)
+	public void setVertices(FloatBuffer vertices, int count, VertexFormat[] format)
 	{
 		glBindVertexArray(vao);
 		
@@ -33,14 +30,11 @@ public class Mesh
 		
 		glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
 		
-		// TODO make it more modular
-		int stride = Vector3.BYTE_SIZE * 2 + Vector2.BYTE_SIZE;
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, stride, 0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, false, stride, Vector3.BYTE_SIZE);
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, false, stride, Vector3.BYTE_SIZE * 2);
+		for(VertexFormat vf : format)
+		{
+			glEnableVertexAttribArray(vf.index);
+			glVertexAttribPointer(vf.index, vf.numComponents, vf.type.getGLName(), false, vf.stride, vf.offset);
+		}
 
 		numVertices = count;
 	}

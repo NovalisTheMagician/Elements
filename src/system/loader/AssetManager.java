@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import system.Config;
 import system.renderer.Mesh;
 import system.renderer.Texture;
 import system.renderer.shader.Program;
@@ -22,7 +21,7 @@ public class AssetManager
 		public final static AssetType<Texture> 	TEXTURE = new AssetType<>(Texture.class);
 		public final static AssetType<Mesh> 	MESH = new AssetType<>(Mesh.class);
 		public final static AssetType<Program> 	SHADER = new AssetType<>(Program.class);
-		// TODO add more AssetTypes
+		// TODO add more Asset Types
 		
 		private Class<T> clazz;
 		
@@ -48,11 +47,11 @@ public class AssetManager
 	private Map<String, AssetType<?>> assetPath;
 	private Map<AssetType<?>, FileFilter> assetFileFilter;
 	
-	private Config config;
+	private String rootAssetPath;
 	
-	public AssetManager(Config config)
+	public AssetManager(String rootAssetPath)
 	{
-		this.config = config;
+		this.rootAssetPath = rootAssetPath;
 		assets = new HashMap<>();
 		loaders = new HashMap<>();
 		assetPath = new HashMap<>();
@@ -73,13 +72,11 @@ public class AssetManager
 	
 	public void loadAssets()
 	{
-		File rootPath = new File(config.getRootPath());
+		File rootPath = new File(rootAssetPath);
 		File[] folders = rootPath.listFiles(this::acceptAssetFolder);
 		
 		for(File assetFolder : folders)
 		{
-			System.out.println("Current folder: " + assetFolder.getName());
-			
 			AssetType<?> type = assetPath.get(assetFolder.getName() + "/");
 			if(type == null) continue;
 			
@@ -91,7 +88,9 @@ public class AssetManager
 			{
 				try (InputStream stream = Files.newInputStream(assetFile.toPath(), StandardOpenOption.READ))
 				{
-					put(type, assetFile.getName(), loader.load(stream, assetFolder.getPath() + "/"));
+					String fileName = assetFile.getName();
+					String identifier = fileName.substring(0, fileName.lastIndexOf('.'));
+					put(type, identifier, loader.load(stream, assetFolder.getPath() + "/"));
 				} 
 				catch (IOException e) 
 				{
@@ -115,11 +114,11 @@ public class AssetManager
 	{
 		Object asset = assets.get(type).get(identifier);
 		if(asset == null)
-			throw new AssetNotFoundException("Could not find " + identifier);
+			throw new AssetException("Could not find " + identifier);
 		
 		T castedAsset = type.castToType(asset);
 		if(castedAsset == null)
-			throw new AssetNotFoundException("Could not cast to type " + type.toString());
+			throw new AssetException("Could not cast to type " + type.toString());
 		
 		return castedAsset;
 	}
