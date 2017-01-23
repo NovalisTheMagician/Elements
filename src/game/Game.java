@@ -2,6 +2,8 @@ package game;
 
 import system.Config;
 import system.GameBase;
+import system.input.InputProcessor;
+import static system.input.InputProcessor.*;
 import system.loader.AssetManager;
 import static system.loader.AssetManager.AssetType.*;
 import system.loader.ShaderLoader;
@@ -46,6 +48,13 @@ public class Game extends GameBase
 	
 	AssetManager assetManager;
 	Config config;
+	
+	InputProcessor inputProcessor;
+	Input quitInput;
+	Input rotateLeftInput;
+	Input rotateRightInput;
+	Input rotateUpInput;
+	Input rotateDownInput;
 	
 	@Override
 	protected void init() 
@@ -104,37 +113,45 @@ public class Game extends GameBase
 		roughness = 32f;
 		
 		cubePosition = new Vector3(0);
+		
+		inputProcessor = new InputProcessor();
+		inputProcessor.initialize();
+		
+		quitInput = new Input() {{ 	type = InputType.KEYBOARD; key = Keyboard.KEY_ESCAPE; 
+									state = InputState.PRESSED; action = InputAction.CONTINUOUS; }};
+		
+		rotateLeftInput = new Input() {{ 	type = InputType.KEYBOARD; key = Keyboard.KEY_LEFT; 
+									state = InputState.PRESSED; action = InputAction.CONTINUOUS; }};
+									
+		rotateRightInput = new Input() {{ 	type = InputType.KEYBOARD; key = Keyboard.KEY_RIGHT; 
+									state = InputState.PRESSED; action = InputAction.CONTINUOUS; }};
+									
+		rotateUpInput = new Input() {{ 	type = InputType.KEYBOARD; key = Keyboard.KEY_UP; 
+									state = InputState.PRESSED; action = InputAction.CONTINUOUS; }};
+									
+		rotateDownInput = new Input() {{ 	type = InputType.KEYBOARD; key = Keyboard.KEY_DOWN; 
+									state = InputState.PRESSED; action = InputAction.CONTINUOUS; }};
 	}
 
 	@Override
 	protected void update(float delta) 
 	{
-		if(Keyboard.isKeyDown(Keyboard.KEY_ESCAPE))
+		inputProcessor.update(delta);
+		
+		if(inputProcessor.isInput(quitInput))
 			stop();
 		
-		if(Keyboard.isKeyDown(Keyboard.KEY_UP))
+		if(inputProcessor.isInput(rotateUpInput))
 			angleZ -= 1f * delta;
 		
-		if(Keyboard.isKeyDown(Keyboard.KEY_DOWN))
+		if(inputProcessor.isInput(rotateDownInput))
 			angleZ += 1f * delta;
 		
-		if(Keyboard.isKeyDown(Keyboard.KEY_LEFT))
+		if(inputProcessor.isInput(rotateLeftInput))
 			angleY += 1f * delta;
 		
-		if(Keyboard.isKeyDown(Keyboard.KEY_RIGHT))
+		if(inputProcessor.isInput(rotateRightInput))
 			angleY -= 1f * delta;
-		
-		if(Keyboard.isKeyDown(Keyboard.KEY_W))
-			cubePosition.z -= 5 * delta;
-		
-		if(Keyboard.isKeyDown(Keyboard.KEY_S))
-			cubePosition.z += 5 * delta;
-		
-		if(Keyboard.isKeyDown(Keyboard.KEY_A))
-			cubePosition.x -= 5 * delta;
-		
-		if(Keyboard.isKeyDown(Keyboard.KEY_D))
-			cubePosition.x += 5 * delta;
 		
 		if(angleY >= Math.PI*2)
 			angleY -= Math.PI*2;
