@@ -56,6 +56,8 @@ public class Game extends GameBase
 	Input rotateUpInput;
 	Input rotateDownInput;
 	
+	Input rotateOnceRight;
+	
 	@Override
 	protected void init() 
 	{
@@ -102,7 +104,7 @@ public class Game extends GameBase
 		angleY = 0;
 		angleZ = 0;
 		
-		cube = MeshBuilder.createCube(0.5f, 0.5f, 0.5f);
+		cube = MeshBuilder.createTexturedCube(0.5f, 0.5f, 0.5f);
 		
 		lightPos = new Vector3(1, 0.5f, 1);
 		lightDiffuse = new Vector3(1);
@@ -115,7 +117,6 @@ public class Game extends GameBase
 		cubePosition = new Vector3(0);
 		
 		inputProcessor = new InputProcessor();
-		inputProcessor.initialize();
 		
 		quitInput = new Input() {{ 	type = InputType.KEYBOARD; key = Keyboard.KEY_ESCAPE; 
 									state = InputState.PRESSED; action = InputAction.CONTINUOUS; }};
@@ -131,12 +132,15 @@ public class Game extends GameBase
 									
 		rotateDownInput = new Input() {{ 	type = InputType.KEYBOARD; key = Keyboard.KEY_DOWN; 
 									state = InputState.PRESSED; action = InputAction.CONTINUOUS; }};
+									
+		rotateOnceRight = new Input() {{ 	type = InputType.KEYBOARD; key = Keyboard.KEY_J; 
+									state = InputState.PRESSED; action = InputAction.ONCE; }};
 	}
 
 	@Override
 	protected void update(float delta) 
 	{
-		inputProcessor.update(delta);
+		inputProcessor.update();
 		
 		if(inputProcessor.isInput(quitInput))
 			stop();
@@ -152,6 +156,9 @@ public class Game extends GameBase
 		
 		if(inputProcessor.isInput(rotateRightInput))
 			angleY -= 1f * delta;
+		
+		if(inputProcessor.isInput(rotateOnceRight))
+			angleY -= 5f * delta;
 		
 		if(angleY >= Math.PI*2)
 			angleY -= Math.PI*2;
@@ -177,7 +184,11 @@ public class Game extends GameBase
 		
 		Matrix4.mul(rotY, rotZ, rot);
 		Matrix4.mul(trans, rot, world);
-		Matrix4.makeLookAt(cameraPos, cameraDir, new Vector3(0, 1, 0), view);
+		
+		Vector3 target = new Vector3();
+		Vector3.add(cameraPos, cameraDir, target);
+		
+		Matrix4.makeLookAt(cameraPos, target, Vector3.Y_AXIS, view);
 		Matrix4.makePerspective((float)Math.toRadians(45), getAspectRatio(), 0.1f, 100, proj);
 		
 		staticBlinnPhong.use();

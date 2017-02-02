@@ -6,6 +6,10 @@ import java.nio.FloatBuffer;
 
 public class Vector3 implements OGLInterOp
 {
+	public static final Vector3 X_AXIS = new Vector3(1, 0, 0);
+	public static final Vector3 Y_AXIS = new Vector3(0, 1, 0);
+	public static final Vector3 Z_AXIS = new Vector3(0, 0, -1);
+	
 	protected boolean isDirty;
 	private FloatBuffer cache;
 	
@@ -64,6 +68,13 @@ public class Vector3 implements OGLInterOp
 		isDirty = true;
 	}
 	
+	public void set(Vector3 setFrom)
+	{
+		x = setFrom.x;
+		y = setFrom.y;
+		z = setFrom.z;
+	}
+	
 	public static void add(Vector3 lhs, Vector3 rhs, Vector3 out)
 	{
 		out.x = lhs.x + rhs.x;
@@ -85,6 +96,14 @@ public class Vector3 implements OGLInterOp
 		out.x = lhs.x * rhs;
 		out.y = lhs.y * rhs;
 		out.z = lhs.z * rhs;
+		out.isDirty = true;
+	}
+	
+	public static void mulAdd(Vector3 lhs, Vector3 rhs, float mul, Vector3 out)
+	{
+		out.x = lhs.x * mul + rhs.x;
+		out.y = lhs.y * mul + rhs.y;
+		out.z = lhs.z * mul + rhs.z;
 		out.isDirty = true;
 	}
 	

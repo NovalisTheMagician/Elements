@@ -46,6 +46,15 @@ public class Matrix4 implements OGLInterOp
 		isDirty = true;
 	}
 	
+	public static void setBasis(Vector3 x, Vector3 y, Vector3 z, Matrix4 out)
+	{
+		out.m11 = x.x; out.m12 = y.x; out.m13 = z.x;
+		out.m21 = x.y; out.m22 = y.y; out.m23 = z.y;
+		out.m31 = x.z; out.m32 = y.z; out.m33 = z.z;
+		
+		out.isDirty = true;
+	}
+	
 	public static void makeIdentity(Matrix4 out)
 	{
 		out.m11 = out.m22 = out.m33 = out.m44 = 1;
@@ -85,20 +94,22 @@ public class Matrix4 implements OGLInterOp
 	// assuming vector = (x, y, z, 1)
 	public static void transformCoord(Matrix4 mat, Vector3 vec, Vector3 out)
 	{
-		out.x = mat.m11 * vec.x + mat.m12 * vec.y + mat.m13 * vec.z + mat.m14;
-		out.y = mat.m21 * vec.x + mat.m22 * vec.y + mat.m23 * vec.z + mat.m24;
-		out.z = mat.m31 * vec.x + mat.m32 * vec.y + mat.m33 * vec.z + mat.m34;
+		float x = mat.m11 * vec.x + mat.m12 * vec.y + mat.m13 * vec.z + mat.m14;
+		float y = mat.m21 * vec.x + mat.m22 * vec.y + mat.m23 * vec.z + mat.m24;
+		float z = mat.m31 * vec.x + mat.m32 * vec.y + mat.m33 * vec.z + mat.m34;
 		
+		out.x = x; out.y = y; out.z = z;
 		out.isDirty = true;
 	}
 	
 	// assuming vector = (x, y, z, 0)
 	public static void transformNormal(Matrix4 mat, Vector3 vec, Vector3 out)
 	{
-		out.x = mat.m11 * vec.x + mat.m12 * vec.y + mat.m13 * vec.z;
-		out.y = mat.m21 * vec.x + mat.m22 * vec.y + mat.m23 * vec.z;
-		out.z = mat.m31 * vec.x + mat.m32 * vec.y + mat.m33 * vec.z;
+		float x = mat.m11 * vec.x + mat.m12 * vec.y + mat.m13 * vec.z;
+		float y = mat.m21 * vec.x + mat.m22 * vec.y + mat.m23 * vec.z;
+		float z = mat.m31 * vec.x + mat.m32 * vec.y + mat.m33 * vec.z;
 		
+		out.x = x; out.y = y; out.z = z;
 		out.isDirty = true;
 	}
 	
@@ -161,6 +172,35 @@ public class Matrix4 implements OGLInterOp
 		
 		out.m11 = c; out.m12 = -s;
 		out.m21 = s; out.m22 = c;
+		
+		out.isDirty = true;
+	}
+	
+	public static void makeRotationAxis(float rad, Vector3 axis, Matrix4 out)
+	{
+		float x = axis.x;
+		float y = axis.y;
+		float z = axis.z;
+		float xx = x*x;
+		float yy = y*y;
+		float zz = z*z;
+		float xy = x*y;
+		float xz = x*z;
+		float yz = y*z;
+		float s = (float)Math.sin(rad);
+		float c = (float)Math.cos(rad);
+		
+		out.m11 = c + xx*(1 - c);
+		out.m12 = xy*(1 - c) - z*s;
+		out.m13 = xz*(1 - c) + y*s;
+		
+		out.m21 = xy*(1 - c) + z*s;
+		out.m22 = c + yy*(1 - c);
+		out.m23 = yz*(1 - c) - x*s;
+		
+		out.m31 = xz*(1 - c) - y*s;
+		out.m32 = yz*(1 - c) + x*s;
+		out.m33 = c + zz*(1-c);
 		
 		out.isDirty = true;
 	}
@@ -236,6 +276,7 @@ public class Matrix4 implements OGLInterOp
 		out.m11 = x.x; out.m21 = y.x; out.m31 = z.x; out.m14 = tx;
 		out.m12 = x.y; out.m22 = y.y; out.m32 = z.y; out.m24 = ty;
 		out.m13 = x.z; out.m23 = y.z; out.m33 = z.z; out.m34 = tz;
+		
 		out.m41 = 0; out.m42 = 0; out.m43 = 0; out.m44 = 1;
 		
 		out.isDirty = true;
@@ -267,7 +308,7 @@ public class Matrix4 implements OGLInterOp
 		buf.put(m11); buf.put(m21); buf.put(m31); buf.put(m41);
 		buf.put(m12); buf.put(m22); buf.put(m32); buf.put(m42);
 		buf.put(m13); buf.put(m23); buf.put(m33); buf.put(m43);
-		buf.put(m14); buf.put(m42); buf.put(m34); buf.put(m44);
+		buf.put(m14); buf.put(m24); buf.put(m34); buf.put(m44);
 	}
 	
 	@Override

@@ -17,6 +17,7 @@ public abstract class GameBase
 	{
 		try
 		{
+			Display.setTitle(title);
 			Display.setDisplayMode(new DisplayMode(width, height));
 			Display.create();
 			

@@ -11,7 +11,7 @@ import math.Vector3;
 
 public class MeshBuilder 
 {
-	public static Mesh createCube(float halfWidth, float halfHeight, float halfDepth)
+	public static Mesh createTexturedCube(float halfWidth, float halfHeight, float halfDepth)
 	{	
 		float hw = halfWidth;
 		float hh = halfHeight;
@@ -99,5 +99,125 @@ public class MeshBuilder
 		mesh.setIndices(indices, i.length);
 		
 		return mesh;
+	}
+	
+	public static Mesh createTexturedPyramid(float halfWidth, float halfDepth, float height)
+	{
+		float hw = halfWidth;
+		float hd = halfDepth;
+		
+		float h = height;
+		
+		OGLInterOp[] v = new OGLInterOp[] 
+		{
+			// ground plane
+			new Vector3(-hw, 0, hd), new Vector3(0, -1, 0), new Vector2(0, 0),
+			new Vector3(hw, 0, hd), new Vector3(0, -1, 0), new Vector2(1, 0),
+			new Vector3(hw, 0, -hd), new Vector3(0, -1, 0), new Vector2(1, 1),
+			new Vector3(-hw, 0, -hd), new Vector3(0, -1, 0), new Vector2(0, 1),
+			
+			// front triangle
+			new Vector3(-hw, 0, hd), new Vector3(0, 0, 1), new Vector2(0, 0),
+			new Vector3(hw, 0, hd), new Vector3(0, 0, 1), new Vector2(1, 0),
+			new Vector3(0, h, 0), new Vector3(0, 0, 1), new Vector2(0.5f, 0.5f),
+			
+			// right triangle
+			new Vector3(hw, 0, hd), new Vector3(1, 0, 0), new Vector2(0, 0),
+			new Vector3(hw, 0, -hd), new Vector3(1, 0, 0), new Vector2(1, 0),
+			new Vector3(0, h, 0), new Vector3(1, 0, 0), new Vector2(0.5f, 0.5f),
+			
+			// back triangle
+			new Vector3(hw, 0, -hd), new Vector3(0, 0, -1), new Vector2(0, 0),
+			new Vector3(-hw, 0, -hd), new Vector3(0, 0, -1), new Vector2(1, 0),
+			new Vector3(0, h, 0), new Vector3(0, 0, -1), new Vector2(0.5f, 0.5f),
+			
+			// left triangle
+			new Vector3(-hw, 0, -hd), new Vector3(-1, 0, 0), new Vector2(0, 0),
+			new Vector3(-hw, 0, hd), new Vector3(-1, 0, 0), new Vector2(1, 0),
+			new Vector3(0, h, 0), new Vector3(-1, 0, 0), new Vector2(0.5f, 0.5f)
+		};
+		
+		short[] i = new short[]
+		{
+			// ground
+			0, 2, 1,
+			2, 0, 3,
+			
+			// front
+			4, 5, 6,
+			
+			// right
+			7, 8, 9,
+			
+			// back
+			10, 11, 12,
+			
+			// left
+			13, 14, 15,
+		};
+				
+		FloatBuffer vertices = ByteBuffer.allocateDirect(16 * 8 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		ShortBuffer indices = ByteBuffer.allocateDirect(2 * i.length).order(ByteOrder.nativeOrder()).asShortBuffer();
+		
+		for(OGLInterOp vert : v)
+			vert.putBuffer(vertices);
+		vertices.flip();
+		
+		for(short ind : i)
+			indices.put(ind);
+		indices.flip();
+		
+		Mesh mesh = new Mesh();
+		mesh.setVertices(vertices, 16, VertexFormat.Common.VertexNormalTexture);
+		mesh.setIndices(indices, i.length);
+		
+		return mesh;
+	}
+	
+	public static Mesh createTexturedPlane(float halfWidth, float halfDepth)
+	{
+		float hw = halfWidth;
+		float hd = halfDepth;
+		
+		OGLInterOp[] v = new OGLInterOp[] 
+		{
+			// ground plane
+			new Vector3(-hw, 0, -hd), new Vector3(0, 1, 0), new Vector2(0, 0),
+			new Vector3(hw, 0, -hd), new Vector3(0, 1, 0), new Vector2(1, 0),
+			new Vector3(hw, 0, hd), new Vector3(0, 1, 0), new Vector2(1, 1),
+			new Vector3(-hw, 0, hd), new Vector3(0, 1, 0), new Vector2(0, 1)
+		};
+		
+		short[] i = new short[]
+		{
+			// ground
+			0, 2, 1,
+			2, 0, 3,
+		};
+				
+		FloatBuffer vertices = ByteBuffer.allocateDirect(4 * 8 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		ShortBuffer indices = ByteBuffer.allocateDirect(2 * i.length).order(ByteOrder.nativeOrder()).asShortBuffer();
+		
+		for(OGLInterOp vert : v)
+			vert.putBuffer(vertices);
+		vertices.flip();
+		
+		for(short ind : i)
+			indices.put(ind);
+		indices.flip();
+		
+		Mesh mesh = new Mesh();
+		mesh.setVertices(vertices, 4, VertexFormat.Common.VertexNormalTexture);
+		mesh.setIndices(indices, i.length);
+		
+		return mesh;
+	}
+	
+	public static Mesh createColoredSphere(float radius, int numHorDiv, int numVerDiv, Vector3 color)
+	{
+		Mesh mesh = new Mesh();
+		
+		return mesh;
+		
 	}
 }

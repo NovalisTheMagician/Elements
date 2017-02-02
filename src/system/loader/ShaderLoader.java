@@ -26,12 +26,24 @@ public class ShaderLoader implements Loader<Program>, FileFilter
 		public String fragment;
 	}
 	
+	public Program loadManually(InputStream vertexShader, InputStream fragmentShader)
+	{
+		String vertexSource = readTextFile(vertexShader);
+		String fragmentSource = readTextFile(fragmentShader);
+		Program p = loadProgram(vertexSource, fragmentSource);
+		return p;
+	}
+	
 	@Override
 	public Program load(InputStream in, String workingDir) 
 	{	
 		Gson gson = new Gson();
 		ShaderFile shdFile = gson.fromJson(readTextFile(in), ShaderFile.class);
-		Program p = loadProgram(workingDir + shdFile.vertex, workingDir + shdFile.fragment);
+		
+		String vertexSource = readTextFile(workingDir + shdFile.vertex);
+		String fragmentSource = readTextFile(workingDir + shdFile.fragment);
+		
+		Program p = loadProgram(vertexSource, fragmentSource);
 		return p;
 	}
 	
@@ -72,11 +84,8 @@ public class ShaderLoader implements Loader<Program>, FileFilter
 	    return source.toString();
 	}
 	
-	private Program loadProgram(String vertexSourcePath, String fragmentSourcePath)
-	{
-		String vertexSource = readTextFile(vertexSourcePath);
-		String fragmentSource = readTextFile(fragmentSourcePath);
-		
+	private Program loadProgram(String vertexSource, String fragmentSource)
+	{	
 		Shader vertexShader = new Shader();
 		Shader fragmentShader = new Shader();
 		

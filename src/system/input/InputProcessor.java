@@ -3,9 +3,7 @@ package system.input;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-import system.GameComponent;
-
-public class InputProcessor implements GameComponent
+public class InputProcessor
 {
 	static public enum InputAction
 	{
@@ -49,41 +47,53 @@ public class InputProcessor implements GameComponent
 		public InputState state;
 		public InputAction action;
 		public int duration;		// TODO implement duration of action
+		
+		public Input()
+		{
+			this(InputType.KEYBOARD, 0);
+		}
+		
+		public Input(InputType type, int key)
+		{
+			this(type, key, InputState.PRESSED);
+		}
+		
+		public Input(InputType type, int key, InputState state)
+		{
+			this(type, key, state, InputAction.CONTINUOUS);
+		}
+		
+		public Input(InputType type, int key, InputState state, InputAction action)
+		{
+			this(type, key, state, action, 0);
+		}
+		
+		public Input(InputType type, int key, InputState state, InputAction action, int duration)
+		{
+			this.type = type;
+			this.key = key;
+			this.state = state;
+			this.action = action;
+			this.duration = duration;
+		}
 	};
-	
-	private int lastMouseX, lastMouseY;
-	private int currMouseX, currMouseY;
-	private int mouseDX, mouseDY;
 	
 	private boolean[] kbCurrState;
 	private boolean[] kbPrevState;
 	private boolean[] msCurrState;
 	private boolean[] msPrevState;
 	
-	@Override
-	public boolean initialize() 
+	public InputProcessor() 
 	{
 		kbCurrState = new boolean[Keyboard.KEYBOARD_SIZE];
 		kbPrevState = new boolean[Keyboard.KEYBOARD_SIZE];
 		
 		msCurrState = new boolean[5];
 		msPrevState = new boolean[5];
-		
-		return true;
 	}
 
-	@Override
-	public void update(float unused) 
-	{
-		currMouseX = Mouse.getX();
-		currMouseY = Mouse.getY();
-		
-		mouseDX = currMouseX - lastMouseX;
-		mouseDY = currMouseY - lastMouseY;
-		
-		lastMouseX = currMouseX;
-		lastMouseY = currMouseY;
-		
+	public void update() 
+	{	
 		System.arraycopy(kbCurrState, 0, kbPrevState, 0, kbCurrState.length);
 		System.arraycopy(msCurrState, 0, msPrevState, 0, msCurrState.length);
 		
@@ -104,6 +114,11 @@ public class InputProcessor implements GameComponent
 		}
 	}
 
+	public void setMouseRelativeMode(boolean mode)
+	{
+		Mouse.setGrabbed(mode);
+	}
+	
 	public boolean isInput(Input input)
 	{
 		return isInput(new Input[] {input});
@@ -115,8 +130,8 @@ public class InputProcessor implements GameComponent
 		
 		for(Input input : inputs)
 		{	
-			boolean inputCurrBuffer[] = input.type == InputType.KEYBOARD ? kbCurrState : msCurrState;
-			boolean inputPrevBuffer[] = input.type == InputType.KEYBOARD ? kbPrevState : msPrevState;
+			boolean inputCurrBuffer[] = getInputBuffer(input.type, true);
+			boolean inputPrevBuffer[] = getInputBuffer(input.type, false);
 			
 			if(input.action == InputAction.CONTINUOUS)
 			{
@@ -131,30 +146,34 @@ public class InputProcessor implements GameComponent
 		return result;
 	}
 	
+	private boolean[] getInputBuffer(InputType byType, boolean curr)
+	{
+		switch(byType)
+		{
+		case KEYBOARD: return curr ? kbCurrState : kbPrevState;
+		case MOUSE: return curr ? msCurrState : msPrevState;
+		}
+		//impossible to get here, but java complains anyway
+		return new boolean[0];
+	}
+	
 	public int getMouseX()
 	{
-		return currMouseX;
+		return Mouse.getX();
 	}
 	
 	public int getMouseY()
 	{
-		return currMouseY;
+		return Mouse.getY();
 	}
 	
 	public int getMouseDX()
 	{
-		return mouseDX;
+		return Mouse.getDX();
 	}
 	
 	public int getMouseDY()
 	{
-		return mouseDY;
+		return Mouse.getDY();
 	}
-	
-	@Override
-	public void destroy() 
-	{
-		
-	}
-	
 }
