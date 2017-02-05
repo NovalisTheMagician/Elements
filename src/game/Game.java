@@ -104,7 +104,7 @@ public class Game extends GameBase
 		angleY = 0;
 		angleZ = 0;
 		
-		cube = MeshBuilder.createTexturedCube(0.5f, 0.5f, 0.5f);
+		cube = MeshBuilder.createTexturedNormalCube(0.5f, 0.5f, 0.5f);
 		
 		lightPos = new Vector3(1, 0.5f, 1);
 		lightDiffuse = new Vector3(1);
